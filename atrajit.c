@@ -8,7 +8,36 @@ MODULE_AUTHOR("Atrajit");
 MODULE_DESCRIPTION("Our first dynamic loadable kernel module");
 
 static struct proc_dir_entry *proc_entry;
+
+ssize_t atrajit_read(struct file *,
+                     char __user *,
+                     size_t,
+                     loff_t *);
+
+ssize_t atrajit_read(struct file *file_pointer,
+                     char __user *user_space_buffer,
+                     size_t count,
+                     loff_t *offset)
+{
+    char msg[] = "Ack\n";
+    size_t len = strlen(msg);
+    int result;
+
+    if (*offset >= len)
+    {
+        return 0;
+    }
+
+    *offset += len;
+
+    result = copy_to_user(user_space_buffer, msg, len);
+
+    printk("atrajit read\n");
+    return len;
+}
+
 static struct proc_ops driver_proc_ops = {
+    .proc_read = atrajit_read
 
 };
 
